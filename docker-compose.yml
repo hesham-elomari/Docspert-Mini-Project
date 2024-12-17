@@ -1,0 +1,60 @@
+version: '3.8'  # Use the latest version of Docker Compose
+
+services:
+  # Django service (backend)
+  django:
+    build:
+      context: ./account_transfer  # Path to the backend directory
+    container_name: django_app  # Name of the container
+    ports:
+      - "8000:8000"  # Expose port 8000 for the Django app
+    volumes:
+      - ./account_transfer:/app  # Mount the backend directory to /app in the container
+    depends_on:
+      - db  # Wait for the database service to be ready before starting Django
+    networks:
+      - default 
+    environment:
+      - DATABASE_HOST=db  # Ensure this matches the db service name
+      - DATABASE_PORT=5432  # Or whatever port your DB uses
+      - DATABASE_NAME=mydb
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=ninenine1
+    command: >
+      bash -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn account_transfer.wsgi:application --bind 0.0.0.0:8000"
+    
+
+  # React service (frontend)
+  react:
+    build:
+      context: ./dockspert_front  # Path to the frontend directory
+    container_name: react_app  # Name of the container
+    ports:
+      - "3000:3000"  # Expose port 3000 for the React app
+    volumes: []
+    depends_on:
+      - django  # Wait for Django service to be ready before React can start
+    networks:
+      - default 
+
+  # PostgreSQL service (database)
+  db:
+    image: postgres:13  # Use official PostgreSQL image version 13
+    container_name: postgres_database  # Name of the database container
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: postgres  # Set the database user
+      POSTGRES_PASSWORD: ninenine1  # Set the database password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persist data across container restarts
+    networks:
+      - default 
+
+# Define volumes for persistent storage
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    driver: bridge
