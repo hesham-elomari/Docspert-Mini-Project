@@ -1,5 +1,5 @@
 # Docspert-Mini-Project
-This project is a full-stack application with a React frontend, Django backend, and PostgreSQL as the database. Docker is used to containerize the application, making it easier to build, manage, and deploy across different environments.
+This project is a full-stack application with React as frontend, Django backend, and PostgreSQL as the database. Docker is used to containerize the application, making it easier to build, manage, and deploy across different environments.
 
 Technologies Used
 Frontend: React
